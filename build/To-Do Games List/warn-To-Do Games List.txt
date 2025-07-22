@@ -15,9 +15,9 @@ IMPORTANT: Do NOT post this list to the issue-tracker. Use it as a basis for
             tracking down the missing module yourself. Thanks!
 
 missing module named pyimod02_importers - imported by C:\Users\Jayrald John\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\PyInstaller\hooks\rthooks\pyi_rth_pkgres.py (delayed), C:\Users\Jayrald John\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\PyInstaller\hooks\rthooks\pyi_rth_pkgutil.py (delayed)
-missing module named pwd - imported by shutil (delayed, optional), tarfile (optional), pathlib (delayed, optional), subprocess (delayed, conditional, optional), posixpath (delayed, conditional, optional), http.server (delayed, optional), netrc (delayed, conditional), getpass (delayed), setuptools._distutils.util (delayed, conditional, optional), setuptools._distutils.archive_util (optional), setuptools._vendor.backports.tarfile (optional)
+missing module named pwd - imported by posixpath (delayed, conditional, optional), shutil (delayed, optional), tarfile (optional), pathlib (delayed, optional), subprocess (delayed, conditional, optional), http.server (delayed, optional), psutil (optional), netrc (delayed, conditional), getpass (delayed), setuptools._distutils.util (delayed, conditional, optional), setuptools._distutils.archive_util (optional), setuptools._vendor.backports.tarfile (optional)
 missing module named grp - imported by shutil (delayed, optional), tarfile (optional), pathlib (delayed, optional), subprocess (delayed, conditional, optional), setuptools._distutils.archive_util (optional), setuptools._vendor.backports.tarfile (optional)
-missing module named posix - imported by shutil (conditional), importlib._bootstrap_external (conditional), os (conditional, optional), posixpath (optional)
+missing module named posix - imported by os (conditional, optional), posixpath (optional), shutil (conditional), importlib._bootstrap_external (conditional)
 missing module named resource - imported by posix (top-level)
 excluded module named _frozen_importlib - imported by importlib (optional), importlib.abc (optional), zipimport (top-level)
 missing module named _frozen_importlib_external - imported by importlib._bootstrap (delayed), importlib (optional), importlib.abc (optional), zipimport (top-level)
@@ -61,7 +61,6 @@ missing module named 'numpy_distutils.cpuinfo' - imported by numpy.f2py.diagnose
 missing module named 'numpy_distutils.fcompiler' - imported by numpy.f2py.diagnose (delayed, conditional, optional)
 missing module named 'numpy_distutils.command' - imported by numpy.f2py.diagnose (delayed, conditional, optional)
 missing module named numpy_distutils - imported by numpy.f2py.diagnose (delayed, optional)
-missing module named psutil - imported by numpy.testing._private.utils (delayed, optional)
 missing module named threadpoolctl - imported by numpy.lib._utils_impl (delayed, optional)
 missing module named numpy._core.zeros - imported by numpy._core (top-level), numpy.linalg._linalg (top-level), numpy (conditional)
 missing module named numpy._core.vstack - imported by numpy._core (top-level), numpy.lib._shape_base_impl (top-level), numpy (conditional)

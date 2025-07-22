@@ -51,6 +51,7 @@ class GachaListApp:
         icon_path = os.path.join(base_dir, "icon.ico")
         self.root.iconbitmap(icon_path)
         self.root.title("To-Do Games List")
+        self.root.resizable(False, False)
         self.current_index = 0
         self.games = []
         self.icon_images = []
@@ -133,10 +134,9 @@ class GachaListApp:
         tk.Button(top_row, text="Add Game", width=12, bg="#666", fg="white", command=self.add_game_dialog).pack(side="left", padx=5)
         tk.Button(top_row, text="Delete Game", width=12, bg="#c05050", fg="white", command=self.delete_selected_game).pack(side="left", padx=5)
 
-
         tk.Button(bottom_row, text="Save TXT", width=12, bg="#666", fg="white", command=self.save_dialog).pack(side="left", padx=5)
+        tk.Button(bottom_row, text="Open TXT", width=12, bg="#666", fg="white", command=self.open_txt_popup).pack(side="left", padx=5)
         tk.Button(bottom_row, text="Create List", width=12, bg="#3cb371", fg="white", command=self.create_list_dialog).pack(side="left", padx=5)
-        
 
     def add_game_widget(self, game, index):
         frame = tk.Frame(self.scroll_frame, bg=self.list_bg)
@@ -268,6 +268,102 @@ class GachaListApp:
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
         if file_path:
             self.load_from_file(file_path)
+
+    def open_txt_popup(self):
+        file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not open file.\n{e}")
+            return
+
+        popup = tk.Toplevel(self.root)
+        popup.title(f"Editing: {os.path.basename(file_path)}")
+        popup.resizable(False, False)
+        popup.configure(bg=self.bg_color)
+
+        auto_save = tk.BooleanVar(value=False)
+        warned_once = tk.BooleanVar(value=False)
+
+        def verify_content(text):
+            lines = text.splitlines()
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                if line.startswith("!admin "):
+                    line = line[7:].strip()
+                if not (line.startswith('"') and line.endswith('"')):
+                    return False
+                path = line.strip('"')
+                if not os.path.exists(path):
+                    return False
+            return True
+
+        def save_to_file():
+            text = text_widget.get("1.0", "end-1c")
+            if verify_content(text):
+                try:
+                    with open(file_path, "w", encoding="utf-8") as f:
+                        f.write(text)
+                    messagebox.showinfo("Saved", "File saved successfully.")
+                    self.load_from_file(file_path)  # ← reload after saving
+                except Exception as e:
+                    messagebox.showerror("Error", f"Could not save file.\n{e}")
+            else:
+                messagebox.showerror("Invalid Format", "The content has invalid formatting or missing files.")
+
+        def on_change(event=None):
+            if auto_save.get():
+                text = text_widget.get("1.0", "end-1c")
+                if verify_content(text):
+                    try:
+                        with open(file_path, "w", encoding="utf-8") as f:
+                            f.write(text)
+                        self.load_from_file(file_path)  # ← reload main list after auto-save
+                        if not warned_once.get():
+                            messagebox.showinfo("Auto Saved", "Saved automatically!")
+                            warned_once.set(True)
+                    except Exception:
+                        pass
+                else:
+                    warned_once.set(False)
+            text_widget.edit_modified(False)
+
+        main_frame = tk.Frame(popup, bg=self.bg_color)
+        main_frame.pack(fill="both", expand=True)
+
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.rowconfigure(0, weight=1)
+
+        text_widget = tk.Text(main_frame, wrap="word", bg=self.list_bg, fg=self.fg_color,
+                            insertbackground="white", font=("Consolas", 14))
+        text_widget.insert("1.0", content)
+        text_widget.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
+        text_widget.bind("<<Modified>>", on_change)
+
+        # Buttons frame always visible at bottom
+        button_frame = tk.Frame(main_frame, bg=self.bg_color)
+        button_frame.grid(row=1, column=0, sticky="ew", pady=(0, 10))
+
+        save_btn = tk.Button(button_frame, text="Save", width=12, bg="#3cb371", fg="white", command=save_to_file)
+        save_btn.pack(side="left", padx=10, pady=5)
+
+        def toggle_auto_save():
+            auto_save.set(not auto_save.get())
+            warned_once.set(False)
+            auto_save_btn.config(
+                text=f"Auto Save: {'ON' if auto_save.get() else 'OFF'}",
+                bg="#3cb371" if auto_save.get() else "#777"
+            )
+
+        auto_save_btn = tk.Button(button_frame, text="Auto Save: OFF", width=14, bg="#777", fg="white", command=toggle_auto_save)
+        auto_save_btn.pack(side="left", padx=10, pady=5)
 
     def save_dialog(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".txt",
