@@ -8,7 +8,7 @@ import win32gui
 import win32con
 import win32ui
 import sys
-from TXT_Editor import open_txt_popup
+from edit_list import open_txt_popup
 
 if getattr(sys, 'frozen', False):
     base_dir = os.path.dirname(sys.executable)
@@ -93,9 +93,16 @@ class GamesListApp:
         self.root.geometry(f"+{x}+{y}")
 
     def create_widgets(self):
-        self.list_label = tk.Label(self.root, text="", font=("Arial", 12, "bold"),
-                           bg=self.bg_color, fg=self.fg_color)
-        self.list_label.pack(pady=(10, 0))
+        top_bar = tk.Frame(self.root, bg=self.bg_color)
+        top_bar.pack(fill="x", padx=10, pady=(10, 0))
+
+        self.list_label = tk.Label(top_bar, text="", font=("Arial", 12, "bold"),
+                        bg=self.bg_color, fg=self.fg_color)
+        self.list_label.pack(side="left")
+
+        tk.Button(top_bar, text="Create New List", width=14, bg="#666", fg="white", 
+                command=self.create_list_dialog).pack(side="right")
+
         self.update_list_label()
 
         self.main_frame = tk.Frame(self.root, bg=self.bg_color)
@@ -143,11 +150,10 @@ class GamesListApp:
 
         tk.Button(top_row, text="Load List (TXT)", width=12, bg="#666", fg="white", command=self.load_dialog).pack(side="left", padx=5)
         tk.Button(top_row, text="Add Game", width=12, bg="#005b29", fg="white", command=self.add_game_dialog).pack(side="left", padx=5)
-        tk.Button(top_row, text="Delete Game", width=12, bg="#5B0000", fg="white", command=self.delete_selected_game).pack(side="left", padx=5)
 
         tk.Button(bottom_row, text="Edit List", width=12, bg="#666", fg="white", 
             command=lambda: open_txt_popup(self.root, self.bg_color, self.list_bg, self.fg_color, self.load_from_file)).pack(side="left", padx=5)
-        tk.Button(bottom_row, text="Create New List", width=12, bg="#005b29", fg="white", command=self.create_list_dialog).pack(side="left", padx=5)
+        tk.Button(bottom_row, text="Remove Game", width=12, bg="#5B0000", fg="white", command=self.remove_selected_game).pack(side="left", padx=5)
 
     def add_game_widget(self, game, index):
         frame = tk.Frame(self.scroll_frame, bg=self.list_bg)
@@ -192,12 +198,12 @@ class GamesListApp:
             self.highlight_current()
             self.auto_save()
 
-    def delete_selected_game(self):
+    def remove_selected_game(self):
         if not self.games:
-            messagebox.showwarning("No Game", "No game selected to delete.")
+            messagebox.showwarning("No Game", "No game selected to remove.")
             return
         game = self.games[self.current_index]
-        confirm = messagebox.askyesno("Delete Game", f"Are you sure you want to delete:\n\n{game['name']}?")
+        confirm = messagebox.askyesno("Remove Game", f"Are you sure you want to remove:\n\n{game['name']}?")
         if confirm:
             del self.games[self.current_index]
             if self.current_index >= len(self.games):

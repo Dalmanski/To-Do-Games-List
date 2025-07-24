@@ -320,10 +320,6 @@
    'C:\\Users\\Jayrald '
    'John\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\PIL\\features.py',
    'PYMODULE'),
-  ('TXT_Editor',
-   'C:\\Users\\Jayrald John\\OneDrive\\Documents\\Code\\Python tkinter\\To-Do '
-   'Games List\\TXT_Editor.py',
-   'PYMODULE'),
   ('__future__',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\__future__.py',
@@ -683,6 +679,10 @@
   ('doctest',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\doctest.py',
+   'PYMODULE'),
+  ('edit_list',
+   'C:\\Users\\Jayrald John\\OneDrive\\Documents\\Code\\Python tkinter\\To-Do '
+   'Games List\\edit_list.py',
    'PYMODULE'),
   ('email',
    'C:\\Program '
