@@ -1,4 +1,4 @@
-('c:\\Users\\Jayrald John\\OneDrive\\Documents\\Code\\Python tkinter\\To-Do '
+('C:\\Users\\Jayrald John\\OneDrive\\Documents\\Code\\Python tkinter\\To-Do '
  'Games List\\build\\To-Do Games List\\PYZ-00.pyz',
  [('PIL',
    'C:\\Users\\Jayrald '
@@ -321,7 +321,7 @@
    'John\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\PIL\\features.py',
    'PYMODULE'),
   ('TXT_Editor',
-   'c:\\Users\\Jayrald John\\OneDrive\\Documents\\Code\\Python tkinter\\To-Do '
+   'C:\\Users\\Jayrald John\\OneDrive\\Documents\\Code\\Python tkinter\\To-Do '
    'Games List\\TXT_Editor.py',
    'PYMODULE'),
   ('__future__',

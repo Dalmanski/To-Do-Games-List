@@ -59,6 +59,7 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
             messagebox.showerror("Invalid Format", "The content has invalid formatting or missing files.")
 
     def on_change(event=None):
+        update_line_numbers()
         if auto_save.get():
             text = text_widget.get("1.0", "end-1c")
             if verify_content(text):
@@ -75,19 +76,40 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
                 warned_once.set(False)
         text_widget.edit_modified(False)
 
+    def update_line_numbers():
+        lines = text_widget.get("1.0", "end-1c").splitlines()
+        line_numbers.config(state="normal")
+        line_numbers.delete("1.0", "end")
+        for i in range(1, len(lines) + 1):
+            line_numbers.insert("end", f"{i}\n")
+        line_numbers.config(state="disabled")
+
+    def sync_scroll(*args):
+        text_widget.yview(*args)
+        line_numbers.yview(*args)
+
     main_frame = tk.Frame(popup, bg=bg_color)
     main_frame.pack(fill="both", expand=True)
-    main_frame.columnconfigure(0, weight=1)
+    main_frame.columnconfigure(1, weight=1)
     main_frame.rowconfigure(0, weight=1)
 
+    line_numbers = tk.Text(main_frame, width=4, padx=4, takefocus=0, border=0,
+                           background="#2b2b2b", foreground="gray", state="disabled", font=("Consolas", 14))
+    line_numbers.grid(row=0, column=0, sticky="ns", pady=10)
+
     text_widget = tk.Text(main_frame, wrap="word", bg=list_bg, fg=fg_color,
-                          insertbackground="white", font=("Consolas", 14))
+                          insertbackground="white", font=("Consolas", 14), undo=True)
     text_widget.insert("1.0", content)
-    text_widget.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+    text_widget.grid(row=0, column=1, sticky="nsew", padx=(0, 10), pady=10)
     text_widget.bind("<<Modified>>", on_change)
 
+    scrollbar = tk.Scrollbar(main_frame, command=sync_scroll)
+    scrollbar.grid(row=0, column=2, sticky="ns", pady=10)
+    text_widget.config(yscrollcommand=scrollbar.set)
+    line_numbers.config(yscrollcommand=scrollbar.set)
+
     button_frame = tk.Frame(main_frame, bg=bg_color)
-    button_frame.grid(row=1, column=0, sticky="ew", pady=(0, 10))
+    button_frame.grid(row=1, column=1, sticky="ew", pady=(0, 10))
 
     save_btn = tk.Button(button_frame, text="Save", width=12, bg="#3cb371", fg="white", command=save_to_file)
     save_btn.pack(side="left", padx=10, pady=5)
@@ -102,3 +124,5 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
 
     auto_save_btn = tk.Button(button_frame, text="Auto Save: OFF", width=14, bg="#777", fg="white", command=toggle_auto_save)
     auto_save_btn.pack(side="left", padx=10, pady=5)
+
+    update_line_numbers()
