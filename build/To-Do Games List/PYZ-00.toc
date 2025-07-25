@@ -804,6 +804,10 @@
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\hashlib.py',
    'PYMODULE'),
+  ('help',
+   'C:\\Users\\Jayrald John\\OneDrive\\Documents\\Code\\Python tkinter\\To-Do '
+   'Games List\\help.py',
+   'PYMODULE'),
   ('hmac',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\hmac.py',
@@ -1994,6 +1998,10 @@
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\selectors.py',
    'PYMODULE'),
+  ('settings',
+   'C:\\Users\\Jayrald John\\OneDrive\\Documents\\Code\\Python tkinter\\To-Do '
+   'Games List\\settings.py',
+   'PYMODULE'),
   ('setuptools',
    'C:\\Users\\Jayrald '
    'John\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\site-packages\\setuptools\\__init__.py',
@@ -2597,6 +2605,10 @@
   ('tkinter.simpledialog',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\tkinter\\simpledialog.py',
+   'PYMODULE'),
+  ('tkinter.ttk',
+   'C:\\Program '
+   'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\\Lib\\tkinter\\ttk.py',
    'PYMODULE'),
   ('token',
    'C:\\Program '

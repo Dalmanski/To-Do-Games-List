@@ -7,7 +7,7 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
     try:
         with open("settings.json", "r", encoding="utf-8") as f:
             settings = json.load(f)
-        file_path = settings.get("gamelist")
+        file_path = settings.get("Gamelist")
         if not file_path or not os.path.exists(file_path):
             messagebox.showerror("Error", "The file from settings.json does not exist.")
             return
