@@ -109,21 +109,25 @@ class GamesListApp:
         self.main_frame = tk.Frame(self.root, bg=self.bg_color)
         self.main_frame.pack(padx=10, pady=10)
 
-        self.number_frame = tk.Frame(self.main_frame, bg=self.num_list_bg)
-        self.number_frame.pack(side="left", fill="y")
+        self.canvas = tk.Canvas(self.main_frame, height=420, bg=self.list_bg, highlightthickness=0)
+        self.canvas.pack(side="left", fill="both", expand=True)
 
-        self.canvas = tk.Canvas(self.main_frame, bg=self.list_bg, highlightthickness=0, height=420)
         self.scrollbar = tk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
-        self.scroll_frame = tk.Frame(self.canvas, bg=self.list_bg)
+        self.scrollbar.pack(side="right", fill="y")
 
-        self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
+        self.scroll_container = tk.Frame(self.canvas, bg=self.list_bg)
+        self.canvas.create_window((0, 0), window=self.scroll_container, anchor="nw")
+
+        self.scroll_container.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
+        self.number_frame = tk.Frame(self.scroll_container, bg=self.num_list_bg)
+        self.number_frame.pack(side="left", fill="y")
+
+        self.scroll_frame = tk.Frame(self.scroll_container, bg=self.list_bg)
+        self.scroll_frame.pack(side="left", fill="both", expand=True)
 
         self.button_frame = tk.Frame(self.root, bg=self.bg_color)
         self.button_frame.pack(pady=10)
@@ -261,7 +265,8 @@ class GamesListApp:
             return self.bullet_image
 
     def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(-1 * int(event.delta / 120), "units")
+        direction = -1 if event.delta > 0 else 1
+        self.canvas.yview_scroll(direction, "units")
 
     def select_game(self, index):
         self.current_index = index
