@@ -71,6 +71,7 @@ class GamesListApp:
         self.fg_color = "#ffffff"
         self.select_bg = "#345d9d"
         self.btn_color = "#3c8dbc"
+        self.num_list_bg = "#141414"
         self.list_bg = "#363636"
 
         self.root.configure(bg=self.bg_color)
@@ -107,7 +108,10 @@ class GamesListApp:
 
         self.main_frame = tk.Frame(self.root, bg=self.bg_color)
         self.main_frame.pack(padx=10, pady=10)
-        
+
+        self.number_frame = tk.Frame(self.main_frame, bg=self.num_list_bg)
+        self.number_frame.pack(side="left", fill="y")
+
         self.canvas = tk.Canvas(self.main_frame, bg=self.list_bg, highlightthickness=0, height=420)
         self.scrollbar = tk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
         self.scroll_frame = tk.Frame(self.canvas, bg=self.list_bg)
@@ -115,6 +119,7 @@ class GamesListApp:
         self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         self.canvas.pack(side="left", fill="both", expand=True)
@@ -167,7 +172,7 @@ class GamesListApp:
         icon_label.pack(side="left", padx=5)
 
         label = tk.Label(frame, text=game["name"], font=("Consolas", 16), bg=self.list_bg,
-                         fg=self.fg_color, anchor="w")
+                        fg=self.fg_color, anchor="w")
         label.pack(side="left", fill="x", expand=True)
         label.bind("<Button-1>", lambda e, idx=index: self.select_game(idx))
 
@@ -176,9 +181,20 @@ class GamesListApp:
             widget.destroy()
         self.item_frames.clear()
         self.icon_images.clear()
+
         for idx, game in enumerate(self.games):
             self.add_game_widget(game, idx)
+
+        self.numbering_list()
         self.highlight_current()
+
+    def numbering_list(self):
+        for widget in self.number_frame.winfo_children():
+            widget.destroy()
+        for i in range(1, len(self.games) + 1):
+            num_label = tk.Label(self.number_frame, text=f"{i}.", font=("Consolas", 16),
+                                bg=self.num_list_bg, fg=self.fg_color, anchor="e", width=4)
+            num_label.pack(anchor="n", pady=5)
 
     def add_game_dialog(self):
         file_path = filedialog.askopenfilename(filetypes=[("Executables or Shortcuts", "*.exe *.lnk")])
