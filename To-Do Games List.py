@@ -109,7 +109,7 @@ class GamesListApp:
         self.main_frame = tk.Frame(self.root, bg=self.bg_color)
         self.main_frame.pack(padx=10, pady=10)
 
-        self.canvas = tk.Canvas(self.main_frame, height=420, bg=self.list_bg, highlightthickness=0)
+        self.canvas = tk.Canvas(self.main_frame, width=430, height=420, bg=self.list_bg, highlightthickness=0)
         self.canvas.pack(side="left", fill="both", expand=True)
 
         self.scrollbar = tk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
