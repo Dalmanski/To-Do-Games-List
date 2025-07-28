@@ -80,7 +80,7 @@ class GamesListApp:
         self.root.update_idletasks()
         w, h = self.root.winfo_width(), self.root.winfo_height()
         x = (self.root.winfo_screenwidth() // 2) - (w // 2)
-        y = (self.root.winfo_screenheight() // 2) - (h // 2)
+        y = (self.root.winfo_screenheight() // 2) - (h // 2) - 40
         self.root.geometry(f"+{x}+{y}")
 
     def create_widgets(self):
@@ -114,8 +114,18 @@ class GamesListApp:
         self.button_frame.pack(pady=10)
 
         for txt, cmd in [("←", self.go_left), ("▶", self.launch_game), ("→", self.go_right)]:
-            tk.Button(self.button_frame, text=txt, font=("Arial", 18, "bold"), width=5, height=2,
-                      bg=self.btn_color, fg="white", activebackground="#2e6fa3", command=cmd).pack(side="left", padx=10)
+            tk.Button(
+                self.button_frame,
+                text=txt,
+                font=("Arial", 28, "bold"), 
+                width=4, 
+                height=1,
+                bg=self.btn_color,
+                fg="white",
+                activebackground="#2e6fa3",
+                command=cmd
+            ).pack(side="left", padx=10)
+
 
         self.auto_button = tk.Button(self.root, text="Auto Play: ON", font=("Arial", 12, "bold"),
                                      bg="#3cb371", fg="white", activebackground="#2e6fa3", relief="ridge", bd=3,
