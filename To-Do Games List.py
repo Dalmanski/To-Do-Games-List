@@ -11,6 +11,7 @@ import sys
 from edit_list import open_txt_popup
 from help import open_help_popup
 from settings import open_settings_popup
+from all_app import open_all_app_popup
 
 if getattr(sys, 'frozen', False):
     base_dir = os.path.dirname(sys.executable)
@@ -126,7 +127,6 @@ class GamesListApp:
                 command=cmd
             ).pack(side="left", padx=10)
 
-
         self.auto_button = tk.Button(self.root, text="Auto Play: ON", font=("Arial", 12, "bold"),
                                      bg="#3cb371", fg="white", activebackground="#2e6fa3", relief="ridge", bd=3,
                                      width=18, command=self.toggle_autoplay)
@@ -169,22 +169,30 @@ class GamesListApp:
         self.clear_frame(self.number_frame)
         self.item_frames.clear()
         self.icon_images.clear()
-        for idx, game in enumerate(self.games):
-            self.add_game_widget(game, idx)
-            tk.Label(self.number_frame, text=f"{idx + 1}.", font=("Consolas", 16),
-                     bg=self.num_list_bg, fg=self.fg_color, anchor="e", width=4).pack(anchor="n", pady=5)
-        self.highlight_current()
+
+        if not self.games:
+            self.empty_label = tk.Label(self.scroll_frame, text="Pls add new game", font=("Arial", 16, "bold"),
+                                        bg=self.list_bg, fg="#888")
+            self.empty_label.pack(padx=100, pady=180)
+        else:
+            for idx, game in enumerate(self.games):
+                self.add_game_widget(game, idx)
+                tk.Label(self.number_frame, text=f"{idx + 1}.", font=("Consolas", 16),
+                        bg=self.num_list_bg, fg=self.fg_color, anchor="e", width=4).pack(anchor="n", pady=5)
+            self.highlight_current()
 
     def add_game_dialog(self):
-        path = filedialog.askopenfilename(filetypes=[("Executables or Shortcuts", "*.exe *.lnk")])
-        if path:
-            ext = os.path.splitext(path)[1].lower()
-            resolved = resolve_shortcut(path) if ext == ".lnk" else path
-            name = os.path.splitext(os.path.basename(path))[0]
-            self.games.append({"name": name, "run": path, "real": resolved, "admin": False})
+        def on_game_selected(name, exe_path):
+            self.games.append({
+                "name": name,
+                "run": exe_path,
+                "real": exe_path,
+                "admin": False
+            })
             self.current_index = len(self.games) - 1
             self.refresh_game_list()
             self.auto_save()
+        open_all_app_popup(self.root, on_game_selected)
 
     def remove_selected_game(self):
         if not self.games:
