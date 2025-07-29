@@ -216,6 +216,7 @@ class GamesListApp:
                 default_filename = path
                 self.refresh_game_list()
                 self.auto_save()
+                self.update_list_label()
                 messagebox.showinfo("Created", f"New list created:\n{path}")
             except Exception as e:
                 messagebox.showerror("Error", f"Could not create file.\n{e}")

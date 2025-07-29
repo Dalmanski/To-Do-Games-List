@@ -1,5 +1,4 @@
 import tkinter as tk
-import platform
 
 def open_help_popup(parent=None):
     help_window = tk.Toplevel(parent)
@@ -55,6 +54,7 @@ def open_help_popup(parent=None):
         "• Added auto search app on adding game\n"
         "• Add the label \"Pls add new game\" when the list is empty\n"
         "• Added scrollable on help\n"
+        "• Added update title label list when created new list\n"
         "\n"
         "Created by Jayrald John C. Dalman."
     )
