@@ -1,4 +1,6 @@
 {
   "Gamelist": "To-Do Games List.txt",
-  "Mode": "edit"
+  "Mode": "edit",
+  "AutoPlay": true,
+  "AutoSave": false
 }

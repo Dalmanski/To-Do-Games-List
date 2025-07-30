@@ -56,6 +56,9 @@ def open_help_popup(parent=None):
         "• Added scrollable on help\n"
         "• Added update title label list when created new list\n"
         "\n"
+        "Date: July 30, 2025\n"
+        "• Added auto play and save on settings.json\n"
+        "\n"
         "Created by Jayrald John C. Dalman."
     )
 

@@ -58,7 +58,7 @@ class GamesListApp:
         self.root.iconbitmap(os.path.join(base_dir, "icon.ico"))
         self.root.title("To-Do Games List")
         self.root.resizable(False, False)
-        self.auto_play = tk.BooleanVar(value=True)
+        self.auto_play = tk.BooleanVar(value=settings.get("AutoPlay", True))
         self.current_index = 0
         self.games, self.icon_images, self.item_frames = [], [], []
         self.bullet_image = self.make_bullet_image()
@@ -131,6 +131,7 @@ class GamesListApp:
                                      bg="#3cb371", fg="white", activebackground="#2e6fa3", relief="ridge", bd=3,
                                      width=18, command=self.toggle_autoplay)
         self.auto_button.pack(pady=5)
+        self.update_autoplay_button()
 
         control = tk.Frame(self.root, bg=self.bg_color)
         control.pack(pady=5)
@@ -276,7 +277,29 @@ class GamesListApp:
     def toggle_autoplay(self):
         val = not self.auto_play.get()
         self.auto_play.set(val)
-        self.auto_button.config(text=f"Auto Play: {'ON' if val else 'OFF'}", bg="#3cb371" if val else "#777")
+        self.auto_button.config(
+            text=f"Auto Play: {'ON' if val else 'OFF'}",
+            bg="#3cb371" if val else "#777",
+            fg="white"
+        )
+        try:
+            data = {}
+            if os.path.exists(settings_path):
+                with open(settings_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            data["AutoPlay"] = val
+            with open(settings_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4)
+        except Exception as e:
+            messagebox.showerror("Settings Error", f"Could not save AutoPlay setting.\n{e}")
+    
+    def update_autoplay_button(self):
+        val = self.auto_play.get()
+        self.auto_button.config(
+            text=f"Auto Play: {'ON' if val else 'OFF'}",
+            bg="#3cb371" if val else "#777",
+            fg="white"
+        )
 
     def load_dialog(self):
         path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])

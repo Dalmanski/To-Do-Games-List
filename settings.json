@@ -1,4 +1,6 @@
 {
     "Gamelist": "test.txt",
-    "Mode": "edit"
+    "Mode": "edit",
+    "AutoPlay": true,
+    "AutoSave": true
 }

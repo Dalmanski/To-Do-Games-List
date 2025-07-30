@@ -4,8 +4,11 @@ import tkinter as tk
 from tkinter import messagebox
 
 def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback):
+    settings_path = "settings.json"
+    settings = {}
+
     try:
-        with open("settings.json", "r", encoding="utf-8") as f:
+        with open(settings_path, "r", encoding="utf-8") as f:
             settings = json.load(f)
         file_path = settings.get("Gamelist")
         if not file_path or not os.path.exists(file_path):
@@ -27,7 +30,7 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
     popup.resizable(False, False)
     popup.configure(bg=bg_color)
 
-    auto_save = tk.BooleanVar(value=False)
+    auto_save = tk.BooleanVar(value=settings.get("AutoSave", False))
     warned_once = tk.BooleanVar(value=False)
 
     def verify_content(text):
@@ -121,8 +124,21 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
             text=f"Auto Save: {'ON' if auto_save.get() else 'OFF'}",
             bg="#3cb371" if auto_save.get() else "#777"
         )
+        try:
+            settings["AutoSave"] = auto_save.get()
+            with open(settings_path, "w", encoding="utf-8") as f:
+                json.dump(settings, f, indent=4)
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not update settings.json\n{e}")
 
-    auto_save_btn = tk.Button(button_frame, text="Auto Save: OFF", width=14, bg="#777", fg="white", command=toggle_auto_save)
+    auto_save_btn = tk.Button(
+        button_frame,
+        text=f"Auto Save: {'ON' if auto_save.get() else 'OFF'}",
+        width=14,
+        bg="#3cb371" if auto_save.get() else "#777",
+        fg="white",
+        command=toggle_auto_save
+    )
     auto_save_btn.pack(side="left", padx=10, pady=5)
 
     update_line_numbers()
