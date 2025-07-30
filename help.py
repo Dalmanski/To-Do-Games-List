@@ -48,7 +48,7 @@ def open_help_popup(parent=None):
         "Date: July 28, 2025\n"
         "• Adjusted text size for Left, Right, and Play buttons\n"
         "• Moved this window up by 40 pixels (Y-axis)\n"
-        "• Added ZIP files so you know where it should run. Just extract it, run the .exe, and you're good to go.\n"
+        "• Added ZIP files so you know where it should run. Just extract it, run the .exe, and you're good to go\n"
         "\n"
         "Date: July 29, 2025\n"
         "• Added auto search app on adding game\n"
@@ -58,6 +58,8 @@ def open_help_popup(parent=None):
         "\n"
         "Date: July 30, 2025\n"
         "• Added auto play and save on settings.json\n"
+        "• Fixed not updating txt on edit list after it create new list\n"
+        "• When create new list and load txt, it will start open file on it's default file location\n"
         "\n"
         "Created by Jayrald John C. Dalman."
     )

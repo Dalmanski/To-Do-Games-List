@@ -2,5 +2,5 @@
     "Gamelist": "test.txt",
     "Mode": "edit",
     "AutoPlay": true,
-    "AutoSave": true
+    "AutoSave": false
 }

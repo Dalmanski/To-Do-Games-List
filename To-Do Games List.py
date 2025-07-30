@@ -207,7 +207,11 @@ class GamesListApp:
             self.auto_save()
 
     def create_list_dialog(self):
-        path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
+        path = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text Files", "*.txt")],
+            initialdir=base_dir
+        )
         if path:
             try:
                 with open(path, "w", encoding="utf-8"): pass
@@ -218,6 +222,7 @@ class GamesListApp:
                 self.refresh_game_list()
                 self.auto_save()
                 self.update_list_label()
+                self.update_settings_json(path) 
                 messagebox.showinfo("Created", f"New list created:\n{path}")
             except Exception as e:
                 messagebox.showerror("Error", f"Could not create file.\n{e}")
@@ -302,7 +307,10 @@ class GamesListApp:
         )
 
     def load_dialog(self):
-        path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
+        path = filedialog.askopenfilename(
+            filetypes=[("Text Files", "*.txt")],
+            initialdir=base_dir
+            )
         if path:
             self.load_from_file(path)
             global default_filename
