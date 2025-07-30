@@ -46,9 +46,8 @@ def open_settings_popup(parent=None):
     mode_dropdown = ttk.Combobox(frame, textvariable=mode_var, values=["simple", "edit"], state="readonly", width=10)
     mode_dropdown.pack(side=tk.LEFT)
 
-    # Apply dark theme to Combobox
     style = ttk.Style()
-    style.theme_use("clam")  # Use clam theme for styling support
+    style.theme_use("clam")
     style.configure("TCombobox",
                     fieldbackground="#2e2e2e",
                     background="#2e2e2e",
@@ -57,7 +56,6 @@ def open_settings_popup(parent=None):
                     selectbackground="#2e2e2e",
                     arrowcolor="white")
     
-    # Adjust dropdown list appearance
     style.map("TCombobox",
               fieldbackground=[('readonly', '#2e2e2e')],
               background=[('readonly', '#2e2e2e')],
