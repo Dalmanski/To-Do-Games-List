@@ -31,53 +31,75 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
     popup.configure(bg=bg_color)
 
     auto_save = tk.BooleanVar(value=settings.get("AutoSave", False))
-    warned_once = tk.BooleanVar(value=False)
-
-    def verify_content(text):
-        lines = text.splitlines()
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            if line.startswith("!admin "):
-                line = line[7:].strip()
-            if not (line.startswith('"') and line.endswith('"')):
-                return False
-            path = line.strip('"')
-            if not os.path.exists(path):
-                return False
-        return True
 
     def save_to_file():
         text = text_widget.get("1.0", "end-1c")
-        if verify_content(text):
-            try:
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(text)
-                messagebox.showinfo("Saved", "File saved successfully.")
-                load_from_file_callback(file_path)
-            except Exception as e:
-                messagebox.showerror("Error", f"Could not save file.\n{e}")
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(text)
+            load_from_file_callback(file_path)
+            status_label.config(text="Saved", fg="#3cb371")
+            countdown_label.config(text="", fg=fg_color)
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not save file.\n{e}")
+
+    countdown_seconds_default = 5
+    countdown_current = 0
+    countdown_job = None
+
+    def perform_auto_save():
+        text = text_widget.get("1.0", "end-1c")
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(text)
+            load_from_file_callback(file_path)
+            status_label.config(text="Auto Saved", fg="#3cb371")
+            countdown_label.config(text="", fg=fg_color)
+        except Exception:
+            pass
+
+    def countdown_tick():
+        nonlocal countdown_current, countdown_job
+        countdown_current -= 1
+        if countdown_current > 0:
+            countdown_label.config(text=f"AutoSave in: {countdown_current}s", fg="#FFD700")
+            countdown_job = popup.after(1000, countdown_tick)
         else:
-            messagebox.showerror("Invalid Format", "The content has invalid formatting or missing files.")
+            countdown_label.config(text="", fg=fg_color)
+            countdown_job = None
+            perform_auto_save()
+
+    def start_countdown():
+        nonlocal countdown_current, countdown_job
+        if not auto_save.get():
+            return
+        stop_countdown()
+        countdown_current = countdown_seconds_default
+        countdown_label.config(text=f"AutoSave in: {countdown_current}s", fg="#FFD700")
+        status_label.config(text="AutoSave pending", fg="#FFD700")
+        countdown_job = popup.after(1000, countdown_tick)
+
+    def stop_countdown():
+        nonlocal countdown_job
+        if countdown_job:
+            try:
+                popup.after_cancel(countdown_job)
+            except Exception:
+                pass
+            countdown_job = None
+        countdown_label.config(text="", fg=fg_color)
 
     def on_change(event=None):
         update_line_numbers()
+        status_label.config(text="Modified", fg="#ff7f7f")
         if auto_save.get():
-            text = text_widget.get("1.0", "end-1c")
-            if verify_content(text):
-                try:
-                    with open(file_path, "w", encoding="utf-8") as f:
-                        f.write(text)
-                    load_from_file_callback(file_path)
-                    if not warned_once.get():
-                        messagebox.showinfo("Auto Saved", "Saved automatically!")
-                        warned_once.set(True)
-                except Exception:
-                    pass
-            else:
-                warned_once.set(False)
-        text_widget.edit_modified(False)
+            start_countdown()
+        else:
+            stop_countdown()
+        try:
+            text_widget.edit_modified(False)
+        except Exception:
+            pass
 
     def update_line_numbers():
         lines = text_widget.get("1.0", "end-1c").splitlines()
@@ -90,6 +112,27 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
     def sync_scroll(*args):
         text_widget.yview(*args)
         line_numbers.yview(*args)
+
+    def toggle_auto_save():
+        auto_save.set(not auto_save.get())
+        auto_save_btn.config(
+            text=f"Auto Save: {'ON' if auto_save.get() else 'OFF'}",
+            bg="#3cb371" if auto_save.get() else "#777"
+        )
+        try:
+            settings["AutoSave"] = auto_save.get()
+            with open(settings_path, "w", encoding="utf-8") as f:
+                json.dump(settings, f, indent=4)
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not update settings.json\n{e}")
+        if auto_save.get():
+            start_countdown()
+        else:
+            stop_countdown()
+
+    def on_close():
+        stop_countdown()
+        popup.destroy()
 
     main_frame = tk.Frame(popup, bg=bg_color)
     main_frame.pack(fill="both", expand=True)
@@ -117,20 +160,6 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
     save_btn = tk.Button(button_frame, text="Save", width=12, bg="#3cb371", fg="white", command=save_to_file)
     save_btn.pack(side="left", padx=10, pady=5)
 
-    def toggle_auto_save():
-        auto_save.set(not auto_save.get())
-        warned_once.set(False)
-        auto_save_btn.config(
-            text=f"Auto Save: {'ON' if auto_save.get() else 'OFF'}",
-            bg="#3cb371" if auto_save.get() else "#777"
-        )
-        try:
-            settings["AutoSave"] = auto_save.get()
-            with open(settings_path, "w", encoding="utf-8") as f:
-                json.dump(settings, f, indent=4)
-        except Exception as e:
-            messagebox.showerror("Error", f"Could not update settings.json\n{e}")
-
     auto_save_btn = tk.Button(
         button_frame,
         text=f"Auto Save: {'ON' if auto_save.get() else 'OFF'}",
@@ -141,4 +170,40 @@ def open_txt_popup(parent, bg_color, list_bg, fg_color, load_from_file_callback)
     )
     auto_save_btn.pack(side="left", padx=10, pady=5)
 
+    countdown_label = tk.Label(button_frame, text="", bg=bg_color, fg=fg_color, font=("Consolas", 12))
+    countdown_label.pack(side="left", padx=(5, 0))
+
+    status_label = tk.Label(button_frame, text="", bg=bg_color, fg=fg_color, font=("Consolas", 12))
+    status_label.pack(side="left", padx=(10, 0))
+
     update_line_numbers()
+
+    if auto_save.get():
+        start_countdown()
+    else:
+        countdown_label.config(text="", fg=fg_color)
+
+    popup.protocol("WM_DELETE_WINDOW", on_close)
+    popup.transient(parent)
+    popup.grab_set()
+
+    def center_popup():
+        popup.update_idletasks()
+        pw = popup.winfo_width()
+        ph = popup.winfo_height()
+        try:
+            px = parent.winfo_rootx()
+            py = parent.winfo_rooty()
+            pw_parent = parent.winfo_width()
+            ph_parent = parent.winfo_height()
+            x = px + (pw_parent // 2) - (pw // 2)
+            y = py + (ph_parent // 2) - (ph // 2)
+        except Exception:
+            screen_w = popup.winfo_screenwidth()
+            screen_h = popup.winfo_screenheight()
+            x = (screen_w // 2) - (pw // 2)
+            y = (screen_h // 2) - (ph // 2)
+        popup.geometry(f"+{x}+{y}")
+
+    center_popup()
+    return popup

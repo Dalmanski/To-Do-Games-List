@@ -3,11 +3,11 @@ import tkinter as tk
 def open_help_popup(parent=None):
     help_window = tk.Toplevel(parent)
     help_window.title("About")
-    help_window.geometry("550x350")
+    help_window.geometry("600x350")
     help_window.configure(bg="#121212")
 
     container = tk.Frame(help_window, bg="#1e1e1e", bd=2, relief="flat")
-    container.place(relx=0.5, rely=0.5, anchor="center", width=500, height=320)
+    container.place(relx=0.5, rely=0.5, anchor="center", width=550, height=320)
 
     canvas = tk.Canvas(container, bg="#1e1e1e", highlightthickness=0)
     scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
@@ -36,9 +36,9 @@ def open_help_popup(parent=None):
 
     about_text = (
         "This project serves as an automatic game and app launcher.\n"
-        "It opens games or applications one by one based on your list,\n"
-        "so you don’t need to launch them manually or search for them.\n"
-        "It also helps you decide what to play next.\n"
+        "It opens games or applications one by one based on your\n"
+        "list, so you don’t need to launch them manually or search\n"
+        "for them. It also helps you decide what to play next.\n"
         "\n"
         "Update (Not final. I will revise this later):\n"
         "Date: July 25, 2025\n"
@@ -60,6 +60,12 @@ def open_help_popup(parent=None):
         "• Added auto play and save on settings.json\n"
         "• Fixed not updating txt on edit list after it create new list\n"
         "• When create new list and load txt, it will start open file on it's default file location\n"
+        "\n"
+        "Date: September 23, 2025\n"
+        "• Added .url files (Internet Shortcut) when \"Browse on .exe\"\n"
+        "• Enhance looks sharpness on file selection and in this software app\n"
+        "• Use different way to save and auto-save on \"Edit List\" like countdown to 5 sec instead of check each file location to save\n"
+        "• Due to Internet Shortcut on Steam file location, it can now read the Game Name from Steam App ID\n"
         "\n"
         "Created by Jayrald John C. Dalman."
     )
