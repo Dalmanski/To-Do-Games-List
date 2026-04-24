@@ -1,0 +1,97 @@
+[
+    {
+        "name": "Limbus Company",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/Limbus Company.url",
+        "real": "steam://rungameid/1973530",
+        "admin": false,
+        "filters": [
+            "night"
+        ]
+    },
+    {
+        "name": "StellaSora",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/StellaSora.lnk",
+        "real": "Z:\\Games for big GB\\Stellar Sora\\YostarGames\\StellaSora_EN_Gamelauncher\\StellaSora_EN_Gamelauncher.exe",
+        "admin": false,
+        "filters": [
+            "night"
+        ]
+    },
+    {
+        "name": "Blue Archive",
+        "run": "steam://rungameid/3557620",
+        "real": "steam://rungameid/3557620",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Heaven Burns Red",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/Heaven Burns Red.lnk",
+        "real": "Z:\\Launcher\\YostarGames\\HeavenBurnsRed_Gamelauncher\\HeavenBurnsRed_Gamelauncher.exe",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Zenless Zone Zero",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/Zenless Zone Zero.lnk",
+        "real": "C:\\Program Files\\HoYoPlay\\launcher.exe",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Honkai Star Rail",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/Honkai Star Rail.lnk",
+        "real": "C:\\Program Files\\HoYoPlay\\launcher.exe",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Wuthering Waves",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/Wuthering Waves.lnk",
+        "real": "C:\\Wuthering Waves\\launcher.exe",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Genshin Impact",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/Genshin Impact.lnk",
+        "real": "C:\\Program Files\\HoYoPlay\\launcher.exe",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Umamusume Pretty Derby",
+        "run": "steam://rungameid/3224770",
+        "real": "steam://rungameid/3224770",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Arknights Endfield",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/Arknights Endfield.lnk",
+        "real": "Z:\\Games for big GB\\Arknight Endfield\\GRYPHLINK\\Launcher.exe",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "MONGIL STAR DIVE",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/MONGIL STAR DIVE.lnk",
+        "real": "C:\\Program Files\\Netmarble\\Netmarble Launcher\\Netmarble Launcher.exe",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Morimens",
+        "run": "steam://rungameid/3052450",
+        "real": "steam://rungameid/3052450",
+        "admin": false,
+        "filters": []
+    },
+    {
+        "name": "Trickcal-Chibi Go",
+        "run": "C:/Users/Jayrald John/OneDrive/Desktop/Gacha/Trickcal-Chibi Go.lnk",
+        "real": "Z:\\LDPlayer\\LDPlayer9\\dnconsole.exe",
+        "admin": false,
+        "filters": []
+    }
+]

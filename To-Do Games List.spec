@@ -5,7 +5,7 @@ a = Analysis(
     ['To-Do Games List.py'],
     pathex=[],
     binaries=[],
-    datas=[('settings.json', '.')],
+    datas=[],
     hiddenimports=['help', 'settings'],
     hookspath=[],
     hooksconfig={},
