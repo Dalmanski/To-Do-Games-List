@@ -89,6 +89,10 @@ def open_help_popup(parent=None):
         "• Can now user filters on game list\n"
         "• Can drag and drop games in the list\n"
         "\n"
+        "April 25, 2026\n"
+        "** Version 1.1.1 **\n"
+        "• Doesn't include my data on \"To-Do Games List\"\n"
+        "• Fixed the filter game list that have bug scrollable when the filter on list have less game\n"
         "Created by Jayrald John C. Dalman."
     )
 

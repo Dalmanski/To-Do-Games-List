@@ -33,6 +33,7 @@ else:
 
 settings_path = os.path.join(base_dir, "settings.json")
 default_filename = None
+
 try:
     with open(settings_path, "r", encoding="utf-8") as f:
         settings = json.load(f)
@@ -205,6 +206,7 @@ class GamesListApp:
         self.num_list_bg, self.list_bg = "#141414", "#363636"
         self.active_filter = "All"
         self.filter_buttons = {}
+        self.canvas_height = 420
         self.root.configure(bg=self.bg_color)
         self.create_widgets()
         if default_filename:
@@ -242,21 +244,24 @@ class GamesListApp:
         self.main_frame = tk.Frame(self.root, bg=self.bg_color)
         self.main_frame.pack(padx=10, pady=10)
 
-        self.canvas = tk.Canvas(self.main_frame, width=520, height=420, bg=self.list_bg, highlightthickness=0)
-        self.canvas.pack(side="left", fill="both", expand=True)
+        self.canvas = tk.Canvas(self.main_frame, width=520, height=self.canvas_height, bg=self.list_bg, highlightthickness=0)
+        self.canvas.pack(side="left", fill="none", expand=False)
+
         self.scrollbar = tk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
         self.scrollbar.pack(side="right", fill="y")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
         self.scroll_container = tk.Frame(self.canvas, bg=self.list_bg)
-        self.canvas.create_window((0, 0), window=self.scroll_container, anchor="nw")
-        self.scroll_container.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas_window = self.canvas.create_window((0, 0), window=self.scroll_container, anchor="nw")
+
+        self.scroll_container.bind("<Configure>", self._update_scrollregion)
+        self.canvas.bind("<Configure>", self._fit_canvas_width)
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         self.number_frame = tk.Frame(self.scroll_container, bg=self.num_list_bg)
         self.number_frame.pack(side="left", fill="y")
         self.scroll_frame = tk.Frame(self.scroll_container, bg=self.list_bg)
-        self.scroll_frame.pack(side="left", fill="both", expand=True)
+        self.scroll_frame.pack(side="left", fill="x")
 
         self.button_frame = tk.Frame(self.root, bg=self.bg_color)
         self.button_frame.pack(pady=10)
@@ -281,6 +286,12 @@ class GamesListApp:
         tk.Button(bottom_row, text="Edit List", width=12, bg="#666", fg="white", command=lambda: open_txt_popup(self.root, self.bg_color, self.list_bg, self.fg_color, self.load_from_file)).pack(side="left", padx=5)
         tk.Button(bottom_row, text="Remove Game", width=12, bg="#5B0000", fg="white", command=self.remove_selected_game).pack(side="left", padx=5)
         tk.Button(bottom_row, text="Settings", width=12, bg="#444", fg="white", command=open_settings_popup).pack(side="left", padx=5)
+
+    def _fit_canvas_width(self, event=None):
+        self.canvas.itemconfigure(self.canvas_window, width=self.canvas.winfo_width())
+
+    def _update_scrollregion(self, event=None):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def clear_frame(self, frame):
         for widget in frame.winfo_children():
@@ -313,8 +324,7 @@ class GamesListApp:
         filtered_games = [self.games[i] for i in self.visible_indices]
 
         if not filtered_games:
-            self.empty_label = tk.Label(self.scroll_frame, text="Pls add new game", font=("Arial", 16, "bold"), bg=self.list_bg, fg="#888")
-            self.empty_label.pack(padx=100, pady=180)
+            tk.Label(self.scroll_frame, text="Pls add new game", font=("Arial", 16, "bold"), bg=self.list_bg, fg="#888").pack(padx=30, pady=40)
             self.current_index = 0
         else:
             for idx, game in enumerate(filtered_games):
@@ -322,6 +332,10 @@ class GamesListApp:
                 tk.Label(self.number_frame, text=f"{idx + 1}.", font=("Consolas", 16), bg=self.num_list_bg, fg=self.fg_color, anchor="e", width=4).pack(anchor="n", pady=5)
             self.current_index = max(0, min(self.current_index, len(filtered_games) - 1))
             self.highlight_current()
+
+        self.root.update_idletasks()
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        self.canvas.yview_moveto(0)
 
     def add_game_dialog(self):
         def on_game_selected(name, exe_path):
@@ -381,6 +395,20 @@ class GamesListApp:
         return ImageTk.PhotoImage(icon_img.resize((32, 32), Image.LANCZOS)) if icon_img else self.bullet_image
 
     def _on_mousewheel(self, e):
+        if not self.games:
+            return
+        bbox = self.canvas.bbox("all")
+        if not bbox:
+            return
+        canvas_height = self.canvas.winfo_height()
+        content_height = bbox[3] - bbox[1]
+        if content_height <= canvas_height:
+            return
+        y1, y2 = self.canvas.yview()
+        if e.delta > 0 and y1 <= 0:
+            return
+        if e.delta < 0 and y2 >= 1:
+            return
         self.canvas.yview_scroll(-1 if e.delta > 0 else 1, "units")
 
     def select_game(self, index):
