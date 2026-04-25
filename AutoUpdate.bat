@@ -2,7 +2,7 @@
 setlocal
 cd /d "%USERPROFILE%\OneDrive\Documents\Code\Python tkinter\To-Do Games List"
 
-set "VERSION=1.1.1"
+set "VERSION=1.2.0"
 set "DIST_DIR=%CD%\dist"
 set "ZIP_DIR=%CD%\zip"
 set "STAGE_DIR=%CD%\_zip_stage"
@@ -14,6 +14,9 @@ pyinstaller ^
   --icon=icon.ico ^
   --hidden-import=help ^
   --hidden-import=settings ^
+  --hidden-import="To-Do List" ^
+  --hidden-import="To-Do List Modal" ^
+  --hidden-import=tkcalendar ^
   "To-Do Games List.py"
 
 if errorlevel 1 (

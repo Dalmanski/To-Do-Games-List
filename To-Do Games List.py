@@ -9,6 +9,7 @@ import win32con
 import win32ui
 import sys
 import ctypes
+import importlib.util
 from edit_list import open_txt_popup
 from help import open_help_popup
 from settings import open_settings_popup
@@ -185,7 +186,43 @@ def _robust_json_load(path):
             return parsed
         raise ValueError("Invalid JSON")
 
+class Tooltip:
+    def __init__(self, widget, text):
+        self.widget = widget
+        self.text = text
+        self.tipwindow = None
+        widget.bind("<Enter>", self.show_tip)
+        widget.bind("<Leave>", self.hide_tip)
+
+    def show_tip(self, event=None):
+        if self.tipwindow or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 20
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry(f"+{x}+{y}")
+        label = tk.Label(
+            tw,
+            text=self.text,
+            bg="#222222",
+            fg="white",
+            relief="solid",
+            borderwidth=1,
+            font=("Arial", 9, "normal")
+        )
+        label.pack(ipadx=6, ipady=3)
+
+    def hide_tip(self, event=None):
+        if self.tipwindow:
+            self.tipwindow.destroy()
+            self.tipwindow = None
+
 class GamesListApp:
+    GAMES_WIDTH = 580
+    SHARED_HEIGHT = 820
+    TODO_WIDTH = 600
+
     def __init__(self, root):
         self.root = root
         try:
@@ -207,8 +244,13 @@ class GamesListApp:
         self.active_filter = "All"
         self.filter_buttons = {}
         self.canvas_height = 420
+        self.todo_root = None
+        self.todo_app = None
+        self.closing = False
         self.root.configure(bg=self.bg_color)
+        self.root.geometry(f"{self.GAMES_WIDTH}x{self.SHARED_HEIGHT}")
         self.create_widgets()
+        self.root.protocol("WM_DELETE_WINDOW", self.close_both_windows)
         if default_filename:
             if not os.path.exists(default_filename):
                 with open(default_filename, "w", encoding="utf-8") as f:
@@ -216,26 +258,75 @@ class GamesListApp:
             self.load_from_file(default_filename)
         else:
             messagebox.showinfo("No List Set", "No game list configured in settings.json.\n\nPlease create or load a list using the buttons below.")
-        self.center_window()
+        self.root.after(300, self.open_todo_list_auto)
 
     def make_bullet_image(self):
         img = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
         ImageDraw.Draw(img).ellipse((10, 10, 22, 22), fill="white")
         return ImageTk.PhotoImage(img)
 
-    def center_window(self):
+    def _window_size(self, window, fallback_w, fallback_h):
+        window.update_idletasks()
+        return fallback_w, fallback_h
+
+    def arrange_windows(self):
+        if not self.root or not self.root.winfo_exists():
+            return
         self.root.update_idletasks()
-        w, h = self.root.winfo_width(), self.root.winfo_height()
-        x = (self.root.winfo_screenwidth() // 2) - (w // 2)
-        y = (self.root.winfo_screenheight() // 2) - (h // 2) - 40
-        self.root.geometry(f"+{x}+{y}")
+        if self.todo_root and self.todo_root.winfo_exists():
+            self.todo_root.update_idletasks()
+
+        screen_w = self.root.winfo_screenwidth()
+        screen_h = self.root.winfo_screenheight()
+        gap = 10
+
+        left_w, left_h = self.GAMES_WIDTH, self.SHARED_HEIGHT
+        right_w, right_h = self.TODO_WIDTH, self.SHARED_HEIGHT if self.todo_root and self.todo_root.winfo_exists() else (0, 0)
+
+        pair_w = left_w + (gap if right_w else 0) + right_w
+        x_start = max(0, (screen_w - pair_w) // 2)
+        y = max(0, (screen_h - self.SHARED_HEIGHT) // 2 - 20)
+
+        self.root.geometry(f"{left_w}x{left_h}+{x_start}+{y}")
+
+        if self.todo_root and self.todo_root.winfo_exists():
+            right_x = x_start + left_w + gap
+            self.todo_root.geometry(f"{right_w}x{right_h}+{right_x}+{y}")
 
     def create_widgets(self):
         top = tk.Frame(self.root, bg=self.bg_color)
         top.pack(fill="x", padx=10, pady=(10, 0))
+
         self.list_label = tk.Label(top, font=("Arial", 12, "bold"), bg=self.bg_color, fg=self.fg_color)
         self.list_label.pack(side="left")
-        tk.Button(top, text="Create New List", width=14, bg="#666", fg="white", command=self.create_list_dialog).pack(side="right")
+
+        right_top = tk.Frame(top, bg=self.bg_color)
+        right_top.pack(side="right")
+
+        create_btn = tk.Button(
+            right_top,
+            text="📄",
+            font=("Arial", 12, "bold"),
+            width=3,
+            bg="#666",
+            fg="white",
+            command=self.create_list_dialog
+        )
+        create_btn.pack(side="left", padx=(0, 6))
+        Tooltip(create_btn, "Create New List")
+
+        todo_btn = tk.Button(
+            right_top,
+            text="☑",
+            font=("Arial", 12, "bold"),
+            width=3,
+            bg="#007acc",
+            fg="white",
+            command=self.toggle_todo_window
+        )
+        todo_btn.pack(side="left")
+        Tooltip(todo_btn, "To-Do List")
+
         self.update_list_label()
 
         self.filter_frame = tk.Frame(self.root, bg=self.bg_color)
@@ -266,9 +357,30 @@ class GamesListApp:
         self.button_frame = tk.Frame(self.root, bg=self.bg_color)
         self.button_frame.pack(pady=10)
         for txt, cmd in [("←", self.go_left), ("▶", self.launch_game), ("→", self.go_right)]:
-            tk.Button(self.button_frame, text=txt, font=("Arial", 28, "bold"), width=4, height=1, bg=self.btn_color, fg="white", activebackground="#2e6fa3", command=cmd).pack(side="left", padx=10)
+            tk.Button(
+                self.button_frame,
+                text=txt,
+                font=("Arial", 28, "bold"),
+                width=4,
+                height=1,
+                bg=self.btn_color,
+                fg="white",
+                activebackground="#2e6fa3",
+                command=cmd
+            ).pack(side="left", padx=10)
 
-        self.auto_button = tk.Button(self.root, text="Auto Play: ON", font=("Arial", 12, "bold"), bg="#3cb371", fg="white", activebackground="#2e6fa3", relief="ridge", bd=3, width=18, command=self.toggle_autoplay)
+        self.auto_button = tk.Button(
+            self.root,
+            text="▶ Auto Play: ON",
+            font=("Arial", 12, "bold"),
+            bg="#3cb371",
+            fg="white",
+            activebackground="#2e6fa3",
+            relief="ridge",
+            bd=3,
+            width=18,
+            command=self.toggle_autoplay
+        )
         self.auto_button.pack(pady=5)
         self.update_autoplay_button()
 
@@ -277,15 +389,15 @@ class GamesListApp:
 
         top_row = tk.Frame(control, bg=self.bg_color)
         top_row.pack(pady=5)
-        tk.Button(top_row, text="Load List (.json)", width=12, bg="#666", fg="white", command=self.load_dialog).pack(side="left", padx=5)
-        tk.Button(top_row, text="Add Game", width=12, bg="#005b29", fg="white", command=self.add_game_dialog).pack(side="left", padx=5)
-        tk.Button(top_row, text="Help", width=12, bg="#444", fg="white", command=open_help_popup).pack(side="left", padx=5)
+        tk.Button(top_row, text="📂 Load List (.json)", width=14, bg="#666", fg="white", command=self.load_dialog).pack(side="left", padx=5)
+        tk.Button(top_row, text="➕ Add Game", width=14, bg="#005b29", fg="white", command=self.add_game_dialog).pack(side="left", padx=5)
+        tk.Button(top_row, text="❓ Help", width=14, bg="#444", fg="white", command=open_help_popup).pack(side="left", padx=5)
 
         bottom_row = tk.Frame(control, bg=self.bg_color)
         bottom_row.pack(pady=5)
-        tk.Button(bottom_row, text="Edit List", width=12, bg="#666", fg="white", command=lambda: open_txt_popup(self.root, self.bg_color, self.list_bg, self.fg_color, self.load_from_file)).pack(side="left", padx=5)
-        tk.Button(bottom_row, text="Remove Game", width=12, bg="#5B0000", fg="white", command=self.remove_selected_game).pack(side="left", padx=5)
-        tk.Button(bottom_row, text="Settings", width=12, bg="#444", fg="white", command=open_settings_popup).pack(side="left", padx=5)
+        tk.Button(bottom_row, text="✏ Edit List", width=14, bg="#666", fg="white", command=lambda: open_txt_popup(self.root, self.bg_color, self.list_bg, self.fg_color, self.load_from_file)).pack(side="left", padx=5)
+        tk.Button(bottom_row, text="🗑 Remove Game", width=14, bg="#5B0000", fg="white", command=self.remove_selected_game).pack(side="left", padx=5)
+        tk.Button(bottom_row, text="⚙ Settings", width=14, bg="#444", fg="white", command=open_settings_popup).pack(side="left", padx=5)
 
     def _fit_canvas_width(self, event=None):
         self.canvas.itemconfigure(self.canvas_window, width=self.canvas.winfo_width())
@@ -463,7 +575,7 @@ class GamesListApp:
     def toggle_autoplay(self):
         val = not self.auto_play.get()
         self.auto_play.set(val)
-        self.auto_button.config(text=f"Auto Play: {'ON' if val else 'OFF'}", bg="#3cb371" if val else "#777", fg="white")
+        self.auto_button.config(text=f"▶ Auto Play: {'ON' if val else 'OFF'}", bg="#3cb371" if val else "#777", fg="white")
         try:
             data = {}
             if os.path.exists(settings_path):
@@ -477,7 +589,69 @@ class GamesListApp:
 
     def update_autoplay_button(self):
         val = self.auto_play.get()
-        self.auto_button.config(text=f"Auto Play: {'ON' if val else 'OFF'}", bg="#3cb371" if val else "#777", fg="white")
+        self.auto_button.config(text=f"▶ Auto Play: {'ON' if val else 'OFF'}", bg="#3cb371" if val else "#777", fg="white")
+
+    def open_todo_list_auto(self):
+        self.open_todo_list()
+
+    def open_todo_list(self):
+        try:
+            if self.todo_root and self.todo_root.winfo_exists():
+                self.todo_root.deiconify()
+                self.todo_root.lift()
+                self.todo_root.focus_force()
+                self.arrange_windows()
+                return
+            spec = importlib.util.spec_from_file_location("TodoList", os.path.join(base_dir, "To-Do List.py"))
+            todo_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(todo_module)
+            self.todo_root = tk.Toplevel(self.root)
+            self.todo_app = todo_module.TodoListApp(self.todo_root, center=False, close_callback=self.close_todo_only)
+            self.todo_root.update_idletasks()
+            self.arrange_windows()
+            self.todo_root.lift()
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not open To-Do List.\n{e}")
+
+    def toggle_todo_window(self):
+        if self.todo_root and self.todo_root.winfo_exists():
+            if self.todo_root.state() == "normal":
+                self.todo_root.withdraw()
+            else:
+                self.todo_root.deiconify()
+                self.arrange_windows()
+                self.todo_root.lift()
+        else:
+            self.open_todo_list()
+
+    def close_todo_only(self):
+        try:
+            if self.todo_app is not None:
+                self.todo_app.save_data()
+        except:
+            pass
+        try:
+            if self.todo_root and self.todo_root.winfo_exists():
+                self.todo_root.destroy()
+        except:
+            pass
+        self.todo_root = None
+        self.todo_app = None
+
+    def close_both_windows(self):
+        if self.closing:
+            return
+        self.closing = True
+        try:
+            self.save_games()
+        except:
+            pass
+        self.close_todo_only()
+        try:
+            if self.root and self.root.winfo_exists():
+                self.root.destroy()
+        except:
+            pass
 
     def load_dialog(self):
         path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json"), ("Text Files", "*.txt")], initialdir=base_dir)
@@ -502,7 +676,10 @@ class GamesListApp:
             messagebox.showerror("Error", f"Could not update settings.json\n{e}")
 
     def update_list_label(self):
-        self.list_label.config(text=os.path.basename(default_filename).replace(".json", "").replace(".txt", ""))
+        if default_filename:
+            self.list_label.config(text=os.path.basename(default_filename).replace(".json", "").replace(".txt", ""))
+        else:
+            self.list_label.config(text="No List Selected")
 
     def update_filter_tabs(self):
         self.clear_frame(self.filter_frame)

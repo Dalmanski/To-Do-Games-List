@@ -93,6 +93,11 @@ def open_help_popup(parent=None):
         "** Version 1.1.1 **\n"
         "• Doesn't include my data on \"To-Do Games List\"\n"
         "• Fixed the filter game list that have bug scrollable when the filter on list have less game\n"
+        "• Added some icon on the buttons\n"
+        "April 25, 2026\n"
+        "** Version 1.2.0 **\n"
+        "• Added To-Do List that can be used for to-do items, good for checking game event and schedules\n"
+        "• Since it has too much going on on this, I should explain this in the next minor updates\n"
         "Created by Jayrald John C. Dalman."
     )
 
